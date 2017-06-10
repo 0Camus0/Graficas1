@@ -1,5 +1,13 @@
-attribute highp vec3 MyVertex;
+attribute highp vec4 Vertex;
+attribute highp vec4 Normal;
+attribute highp vec2 UV;
+
+varying highp vec4 NormalTransformed;
+
+uniform highp mat4 WVP;
+uniform highp mat4 World;
 
 void main(){
-	gl_Position = vec4(MyVertex,1.0);
+	NormalTransformed	= World*Normal;
+	gl_Position = WVP*Vertex;
 }

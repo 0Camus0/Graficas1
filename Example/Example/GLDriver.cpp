@@ -1,3 +1,4 @@
+
 #include "GLDriver.h"
 #include <iostream>
 #include <string>
@@ -9,10 +10,22 @@ void EGLError(const char* c_ptr) {
 	}
 }
 
+bool OpenNativeDisplay(EGLNativeDisplayType* nativedisp_out)
+{
+	*nativedisp_out = (EGLNativeDisplayType)NULL;
+	return true;
+}
+
 void	GLDriver::InitDriver() {
 	EGLint numConfigs, w, h;
-	HDC	hDC = GetDC(eglWindow);
-	eglDisplay = eglGetDisplay(hDC);
+
+	EGLNativeDisplayType nativeDisplay;
+
+	if(!OpenNativeDisplay(&nativeDisplay)){
+		std::cout << "can't open native display" << std::endl;
+	}
+
+	eglDisplay = eglGetDisplay(nativeDisplay);
 
 	EGLError("eglGetDisplay");
 
@@ -60,6 +73,11 @@ void	GLDriver::InitDriver() {
 	std::string GL_Version = std::string((const char*)glGetString(GL_VERSION));
 	std::string GL_Extensions = std::string((const char*)glGetString(GL_EXTENSIONS));
 	std::cout << "GL Version: " << GL_Version << "\n\nExtensions\n\n" << GL_Extensions << std::endl;
+
+	glEnable(GL_DEPTH_TEST);
+	glClearDepthf(1.0f);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 }
 
 void	GLDriver::CreateSurfaces() {
@@ -85,8 +103,9 @@ void	GLDriver::SetWindow(void *window) {
 }
 
 void	GLDriver::Clear() {
-	glClearColor(1.0,0.0,1.0,1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0,0.0,0.0,1.0);
+	glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT);
+
 }
 
 void	GLDriver::SwapBuffers() {
