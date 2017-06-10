@@ -76,8 +76,8 @@ void	GLDriver::InitDriver() {
 
 	glEnable(GL_DEPTH_TEST);
 	glClearDepthf(1.0f);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+//	glEnable(GL_CULL_FACE);
+//	glCullFace(GL_FRONT);
 }
 
 void	GLDriver::CreateSurfaces() {

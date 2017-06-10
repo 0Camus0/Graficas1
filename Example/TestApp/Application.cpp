@@ -7,11 +7,14 @@ void TestApp::InitVars() {
 	Scaling		= D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 }
 
-void TestApp::CreateAssets() {	
+void TestApp::CreateAssets() {
 	PrimitiveMgr.SetVP(&VP);
-	int indexCube = PrimitiveMgr.CreateCube();
-	Cubes[0].CreateInstance(PrimitiveMgr.GetPrimitive(indexCube), &VP);
-	Cubes[1].CreateInstance(PrimitiveMgr.GetPrimitive(indexCube), &VP);
+	//int indexCube = PrimitiveMgr.CreateCube();
+	//Cubes[0].CreateInstance(PrimitiveMgr.GetPrimitive(indexCube), &VP);
+	//Cubes[1].CreateInstance(PrimitiveMgr.GetPrimitive(indexCube), &VP);
+
+	int indexTri = PrimitiveMgr.CreateTriangle();
+	Triangle[0].CreateInstance(PrimitiveMgr.GetPrimitive(indexTri), &VP);
 
 	D3DXMATRIX View;
 	D3DXVECTOR3 Pos		= D3DXVECTOR3(0.0f,1.0f,5.0f);
@@ -33,9 +36,15 @@ void TestApp::DestroyAssets() {
 void TestApp::OnUpdate() {
 	DtTimer.Update();
 
+	Triangle[0].TranslateAbsolute(Position.x, Position.y, Position.z);
+	Triangle[0].RotateXAbsolute(Orientation.x);
+	Triangle[0].RotateYAbsolute(Orientation.y);
+	Triangle[0].RotateZAbsolute(Orientation.z);
+	Triangle[0].ScaleAbsolute(Scaling.x);
+	Triangle[0].Update();
 	OnInput();
 
-
+	/*
 	Cubes[0].TranslateAbsolute(Position.x, Position.y, Position.z);
 	Cubes[0].RotateXAbsolute(Orientation.x);
 	Cubes[0].RotateYAbsolute(Orientation.y);
@@ -49,16 +58,13 @@ void TestApp::OnUpdate() {
 	Cubes[1].RotateZAbsolute(-Orientation.z);
 	Cubes[1].ScaleAbsolute(Scaling.x);
 	Cubes[1].Update();
-
+	*/
 	OnDraw();
 }
 
 void TestApp::OnDraw() {
 	pFramework->pVideoDriver->Clear();
-	
-	Cubes[0].Draw();
-	Cubes[1].Draw();
-
+	Triangle[0].Draw();
 	pFramework->pVideoDriver->SwapBuffers();
 }
 
