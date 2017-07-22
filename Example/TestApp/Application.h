@@ -2,8 +2,18 @@
 #include <PrimitiveManager.h>
 #include <PrimitiveInstance.h>
 
-#include <d3dx9math.h>
+#include <xMaths.h>
+#include <xCamera.h>
+
 #include <Timer.h>
+
+
+enum {
+	DRAW_CUBE_SPINNING = 0,
+	DRAW_CUBE_BIG,
+	DRAW_MESH,
+	DRAW_ALL,
+};
 
 class TestApp : public AppBase {
 public:
@@ -21,18 +31,23 @@ public:
 
 	void OnReset();
 
+	void UpdateVP();
+
 	PrimitiveManager PrimitiveMgr;
 	PrimitiveInst	Cubes[10];
-	PrimitiveInst	Triangle[10];
+	PrimitiveInst	Triangles[10];
+	PrimitiveInst   Pigs[10];
 
-	D3DXVECTOR3		Position;
-	D3DXVECTOR3		Orientation;
-	D3DXVECTOR3		Scaling;
-	D3DXMATRIX		WorldTransform;
+	xCamera			Cam;
 
-	D3DXMATRIX		View;
-	D3DXMATRIX		Projection;
-	D3DXMATRIX		VP;
+	XVECTOR3		Position;
+	XVECTOR3		Orientation;
+	XVECTOR3		Scaling;
+
+	XMATRIX44		View;
+	XMATRIX44		Projection;
+	XMATRIX44		VP;
 
 	Timer			DtTimer;
+	int				SelectedMesh;
 };

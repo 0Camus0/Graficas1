@@ -1,6 +1,8 @@
 #ifndef UAD_BASEDRIVER_H
 #define UAD_BASEDRIVER_H
 
+#include "Config.h"
+
 class BaseDriver {
 public:
 	BaseDriver() {  }
@@ -10,7 +12,7 @@ public:
 	virtual void	Update() = 0;
 	virtual void	DestroyDriver() = 0;
 	virtual void	SetWindow(void *window) = 0;
-
+	virtual void	SetDimensions(int,int) = 0;
 	virtual void	Clear() = 0;	
 	virtual void	SwapBuffers() = 0;
 };

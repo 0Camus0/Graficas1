@@ -1,6 +1,8 @@
 #ifndef UAD_INPUT_MANAGER_H
 #define UAD_INPUT_MANAGER_H
 
+#include "Config.h"
+
 #include <SDL/SDL_keysym.h>
 
 #define MAXKEYS 512
@@ -19,6 +21,8 @@ public:
 	bool	KeyStates[2][MAXKEYS];
 	bool	MouseButtonStates[2][MAXMOUSEBUTTONS];
 
+	int		xDelta;
+	int 	yDelta;
 };
 
 #endif

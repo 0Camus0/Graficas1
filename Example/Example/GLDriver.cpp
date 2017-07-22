@@ -45,7 +45,7 @@ void	GLDriver::InitDriver() {
 		EGL_BLUE_SIZE,		8,
 		EGL_GREEN_SIZE,		8,
 		EGL_RED_SIZE,		8,
-		EGL_DEPTH_SIZE,		16,
+		EGL_DEPTH_SIZE,		24,
 		EGL_NONE
 	};
 
@@ -76,8 +76,8 @@ void	GLDriver::InitDriver() {
 
 	glEnable(GL_DEPTH_TEST);
 	glClearDepthf(1.0f);
-//	glEnable(GL_CULL_FACE);
-//	glCullFace(GL_FRONT);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 }
 
 void	GLDriver::CreateSurfaces() {
@@ -100,6 +100,10 @@ void	GLDriver::DestroyDriver() {
 
 void	GLDriver::SetWindow(void *window) {
 	eglWindow = GetActiveWindow();
+}
+
+void	GLDriver::SetDimensions(int w, int h){
+
 }
 
 void	GLDriver::Clear() {

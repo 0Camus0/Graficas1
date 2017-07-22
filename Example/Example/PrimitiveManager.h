@@ -1,17 +1,20 @@
 #ifndef UAD_PRIMITIVEMANAGER_H
 #define UAD_PRIMITIVEMANAGER_H
 
+#include "Config.h"
+
 #include <vector>
-#include <d3dx9math.h>
+#include <xMaths.h>
 #include "PrimitiveBase.h"
 
 class PrimitiveManager {
 public:
-	void SetVP(D3DXMATRIX *vp) {
+	void SetVP(XMATRIX44 *vp) {
 		pVP = vp;
 	}
 	int  CreateTriangle();
 	int	 CreateCube();
+	int	 CreateMesh(char *fname);
 
 	void DrawPrimitives();
 	void DestroyPrimitives();
@@ -19,7 +22,7 @@ public:
 
 	std::vector<PrimitiveBase*> primitives;
 
-	D3DXMATRIX *pVP;
+	XMATRIX44 *pVP;
 };
 
 #endif

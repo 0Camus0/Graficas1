@@ -2,31 +2,36 @@
 
 void TestApp::InitVars() {
 	DtTimer.Init();
-	Position	= D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	Orientation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	Scaling		= D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+	Position = XVECTOR3(0.0f, 0.0f, 0.0f);
+	Orientation = XVECTOR3(0.0f, 0.0f, 0.0f);
+	Scaling = XVECTOR3(1.0f, 1.0f, 1.0f);
+	SelectedMesh = 0;
+	Cam.Init(XVECTOR3(0.0f, 1.0f, -5.0f), Deg2Rad(45.0f), 1280.0f / 720.0f, 0.01f, 100000.0f);
+	Cam.SetLookAt(XVECTOR3(0.0001f, 0.0001f, 0.0001f));
 }
 
 void TestApp::CreateAssets() {
 	PrimitiveMgr.SetVP(&VP);
-	//int indexCube = PrimitiveMgr.CreateCube();
-	//Cubes[0].CreateInstance(PrimitiveMgr.GetPrimitive(indexCube), &VP);
-	//Cubes[1].CreateInstance(PrimitiveMgr.GetPrimitive(indexCube), &VP);
 
-	int indexTri = PrimitiveMgr.CreateTriangle();
-	Triangle[0].CreateInstance(PrimitiveMgr.GetPrimitive(indexTri), &VP);
+	int indexScene= PrimitiveMgr.CreateMesh("Models/Scene.X");
+	Pigs[0].CreateInstance(PrimitiveMgr.GetPrimitive(indexScene), &VP);
 
-	D3DXMATRIX View;
-	D3DXVECTOR3 Pos		= D3DXVECTOR3(0.0f,1.0f,5.0f);
-	D3DXVECTOR3 Up		= D3DXVECTOR3(0.0f,1.0f,0.0f);
-	D3DXVECTOR3 LookAt	= D3DXVECTOR3(0.0001f, 0.0001f, 0.0001f) - Pos;
-	D3DXMatrixLookAtRH(&View,&Pos,&LookAt,&Up);
-	D3DXMATRIX Proj;
+	int indexCerdo = PrimitiveMgr.CreateMesh("Models/NuCroc.X");
+	Pigs[1].CreateInstance(PrimitiveMgr.GetPrimitive(indexCerdo), &VP);
+	
+	UpdateVP();
+}
 
-	D3DXMatrixPerspectiveFovRH(&Proj,D3DXToRadian(45.0f),1280.0f/720.0f,0.1f,1000.0f);
-	//	D3DXMatrixOrthoRH(&Proj, 1280.0f / 720.0f, 1.0f , 0.1, 100.0f);
-	VP = View*Proj;
+void TestApp::UpdateVP() {
+	XMATRIX44 View;
+	XVECTOR3 Pos = XVECTOR3(0.0f, 1.0f, -5.0f);
+	XVECTOR3 Up = XVECTOR3(0.0f, 1.0f, 0.0f);
+	XVECTOR3 LookAt = XVECTOR3(0.0001f, 0.0001f, 0.0001f) - Pos;
+	XMatViewLookAtLH(View, Pos, LookAt, Up);
 
+	XMATRIX44 Proj;
+	XMatPerspectiveLH(Proj, Deg2Rad(45.0f), 1280.0f / 720.0f, 0.01f, 100000.0f);
+	VP = Proj;
 }
 
 void TestApp::DestroyAssets() {
@@ -35,102 +40,122 @@ void TestApp::DestroyAssets() {
 
 void TestApp::OnUpdate() {
 	DtTimer.Update();
-
-	Triangle[0].TranslateAbsolute(Position.x, Position.y, Position.z);
-	Triangle[0].RotateXAbsolute(Orientation.x);
-	Triangle[0].RotateYAbsolute(Orientation.y);
-	Triangle[0].RotateZAbsolute(Orientation.z);
-	Triangle[0].ScaleAbsolute(Scaling.x);
-	Triangle[0].Update();
+	
 	OnInput();
 
-	/*
-	Cubes[0].TranslateAbsolute(Position.x, Position.y, Position.z);
-	Cubes[0].RotateXAbsolute(Orientation.x);
-	Cubes[0].RotateYAbsolute(Orientation.y);
-	Cubes[0].RotateZAbsolute(Orientation.z);
-	Cubes[0].ScaleAbsolute(Scaling.x);
-	Cubes[0].Update();
+	Cam.Update(DtTimer.GetDTSecs());
+	VP = Cam.VP;
 
-	Cubes[1].TranslateAbsolute(-Position.x,-Position.y, Position.z);
-	Cubes[1].RotateXAbsolute(-Orientation.x);
-	Cubes[1].RotateYAbsolute(-Orientation.y);
-	Cubes[1].RotateZAbsolute(-Orientation.z);
-	Cubes[1].ScaleAbsolute(Scaling.x);
-	Cubes[1].Update();
-	*/
+	PrimitiveInst *Sel = &Pigs[1];
+	Sel->TranslateAbsolute(Position.x, Position.y, Position.z);
+	Sel->RotateXAbsolute(Orientation.x);
+	Sel->RotateYAbsolute(Orientation.y);
+	Sel->RotateZAbsolute(Orientation.z);
+	Sel->ScaleAbsolute(Orientation.z);
+	Sel->ScaleAbsolute(Scaling.x);
+	Sel->Update();
+
 	OnDraw();
 }
 
 void TestApp::OnDraw() {
 	pFramework->pVideoDriver->Clear();
-	Triangle[0].Draw();
+	
+	Pigs[0].Draw();
+	Pigs[1].Draw();
+
 	pFramework->pVideoDriver->SwapBuffers();
 }
 
 void TestApp::OnInput() {
-	
+	const float speedFactor = 10.0f;
 	if (IManager.PressedKey(SDLK_UP)) {
-		Position.y += 1.0f*DtTimer.GetDTSecs();
+		Position.y += 1.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_DOWN)) {
-		Position.y -= 1.0f*DtTimer.GetDTSecs();
+		Position.y -= 1.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_LEFT)) {
-		Position.x -= 1.0f*DtTimer.GetDTSecs();
+		Position.x -= 1.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_RIGHT)) {
-		Position.x += 1.0f*DtTimer.GetDTSecs();
+		Position.x += 1.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_z)) {
-		Position.z -= 1.0f*DtTimer.GetDTSecs();
+		Position.z -= 1.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_x)) {
-		Position.z += 1.0f*DtTimer.GetDTSecs();
+		Position.z += 1.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_KP_PLUS)) {
-		Scaling.x += 1.0f*DtTimer.GetDTSecs();
-		Scaling.y += 1.0f*DtTimer.GetDTSecs();
-		Scaling.z += 1.0f*DtTimer.GetDTSecs();
+		Scaling.x += 0.1f*speedFactor*DtTimer.GetDTSecs();
+		Scaling.y += 0.1f*speedFactor*DtTimer.GetDTSecs();
+		Scaling.z += 0.1f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_KP_MINUS)) {
-		Scaling.x -= 1.0f*DtTimer.GetDTSecs();
-		Scaling.y -= 1.0f*DtTimer.GetDTSecs();
-		Scaling.z -= 1.0f*DtTimer.GetDTSecs();
+		Scaling.x -= 0.1f*speedFactor*DtTimer.GetDTSecs();
+		Scaling.y -= 0.1f*speedFactor*DtTimer.GetDTSecs();
+		Scaling.z -= 0.1f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_KP5)) {
-		Orientation.x -= 60.0f*DtTimer.GetDTSecs();
+		Orientation.x -= 60.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_KP6)) {
-		Orientation.x += 60.0f*DtTimer.GetDTSecs();
+		Orientation.x += 60.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_KP2)) {
-		Orientation.y -= 60.0f*DtTimer.GetDTSecs();
+		Orientation.y -= 60.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_KP3)) {
-		Orientation.y += 60.0f*DtTimer.GetDTSecs();
+		Orientation.y += 60.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_KP0)) {
-		Orientation.z -= 60.0f*DtTimer.GetDTSecs();
+		Orientation.z -= 60.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
 	if (IManager.PressedKey(SDLK_KP_PERIOD)) {
-		Orientation.z += 60.0f*DtTimer.GetDTSecs();
+		Orientation.z += 60.0f*speedFactor*DtTimer.GetDTSecs();
 	}
 
+	if (IManager.PressedKey(SDLK_KP_PERIOD)) {
+		Orientation.z += 60.0f*speedFactor*DtTimer.GetDTSecs();
+	}
+
+	if (IManager.PressedKey(SDLK_w)) {
+		Cam.MoveForward(DtTimer.GetDTSecs());
+	}
+
+	if (IManager.PressedKey(SDLK_s)) {
+		Cam.MoveBackward(DtTimer.GetDTSecs());
+	}
+
+	if (IManager.PressedKey(SDLK_a)) {
+		Cam.StrafeLeft(DtTimer.GetDTSecs());
+	}
+
+	if (IManager.PressedKey(SDLK_d)) {
+		Cam.StrafeRight(DtTimer.GetDTSecs());
+	}
 	
+	float yaw = 0.01f*static_cast<float>(IManager.xDelta);
+	Cam.MoveYaw(yaw);
+
+	float pitch = 0.01f*static_cast<float>(IManager.yDelta);
+	Cam.MovePitch(pitch);
+	
+
 }
 
 void TestApp::OnPause() {
